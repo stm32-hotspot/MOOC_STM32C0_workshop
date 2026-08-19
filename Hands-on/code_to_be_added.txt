@@ -1,0 +1,124 @@
+Labs code to be added (v1.0):
+-----------------------------
+
+- STM32C0 MOOC Lab 1: Blinky
+
+in main.c:
+
+ HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+ HAL_Delay(100);
+
+- STM32C0 MOOC Lab 2: PWM
+
+in main.c:
+
+HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+- STM32C0 MOOC Lab 3: EXTI
+
+in main.c
+
+uint8_t PC13_flag = 0;
+
+//////////////////////
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+  PC13_flag++;
+  if ( ( PC13_flag & 0x01 ) == 0x01 )
+  {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+  }
+  else
+  {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);        
+  }
+}
+
+- STM32C0 MOOC Lab 4: Printf debugging using UART
+
+in main.c:
+
+/* USER CODE BEGIN PFP */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)  
+/* USER CODE END PFP */
+
+////////////////////////////
+
+  while (1)
+  {
+      printf("** Hello World ** \n\r");
+      HAL_Delay(1000);
+  /* USER CODE END WHILE */
+
+/////////////////////////////
+
+  /* USER CODE BEGIN 4 */
+  PUTCHAR_PROTOTYPE
+  {
+    HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xFFFF);
+    return ch;
+  }
+  /* USER CODE END 4 */
+
+- STM32C0 MOOC Lab 5: LL Drivers
+
+in main.c:
+
+LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_5);
+// Delay 100 ms
+LL_mDelay(100);
+
+- STM32C0 MOOC Lab 6: ADC + DMA + TIM
+
+in main.c:
+
+/* USER CODE BEGIN PV */
+uint8_t buffer[8];
+
+...
+
+ /* USER CODE BEGIN 2 */
+  HAL_ADCEx_Calibration_Start(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)buffer, 8);
+  HAL_TIM_Base_Start(&htim3);
+
+- STM32C0 MOOC Lab 7: RAM
+
+in main.c:
+
+/* USER CODE BEGIN 2 */		
+   LL_USART_EnableIT_RXNE(USART2);
+   LL_USART_EnableIT_ERROR(USART2);
+
+...
+
+/* USER CODE BEGIN 4 */
+void USART_CharReception_Callback(void)
+{
+   uint8_t received_char;
+   received_char = LL_USART_ReceiveData8(USART2);
+   if ((received_char == 'E') || (received_char == 'e')) {
+      LL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+   }
+   LL_USART_TransmitData8(USART2, received_char);
+}
+
+in main.h:
+
+/* USER CODE BEGIN EFP */
+void USART_CharReception_Callback(void);
+/* USER CODE END EFP */
+
+in stm32c0xx_it.c:
+
+/* USER CODE BEGIN USART2_IRQn 0 */
+USART_CharReception_Callback();
+/* USER CODE END USART2_IRQn 0 */
+
+in STM32C031C6TX_FLASH.ld:
+
+*/Drivers/*(.text*) 
+*main.o(.text.MX_GPIO_Init)
+*main.o(.text.MX_USART2_UART_Init)
+*main.o(.text.USART_CharReception_Callback)
